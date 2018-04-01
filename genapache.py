@@ -3,7 +3,7 @@ import random
 import subprocess
 import os
 a=subprocess.getoutput("ip addr")
-log_line_re=re.compile(r'''inet (?P<ip>\s+\d+\.\d+\.\d+\.\d)+
+log_line_re=re.compile(r'''inet (?P<ip>\s+\d+\.\d+\.\d+\.\d+)
 ''', re.VERBOSE)
 def apacheconf(ip,dom_name,homedir):
     a='''<VirtualHost %s:80>
@@ -31,7 +31,7 @@ def genstr():
     return ''.join(map(str,str1))
 
 genst=genstr()
-phpinfo='''?php
+phpinfo='''<?php
 phpinfo();
 ?>
 '''
