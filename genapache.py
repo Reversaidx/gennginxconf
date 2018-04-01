@@ -1,6 +1,7 @@
 import re
 import random
 import subprocess
+import os
 a=subprocess.getoutput("ip addr")
 log_line_re=re.compile(r'''inet (?P<ip>\s+\d+\.\d+\.\d+\.\d)+
 ''', re.VERBOSE)
@@ -30,11 +31,20 @@ def genstr():
     return ''.join(map(str,str1))
 
 genst=genstr()
+phpinfo='''?php
+phpinfo();
+?>
+'''
 for i in log_line_re.findall(a):
     rd=random.randint(1,3)
     for b in range(0,rd):
         homedir = random.sample(genst, k=8)
         str_homerdir=''.join(homedir)
+        if not os._exists('/var/www/%s' %(str_homerdir)):
+            os.mkdir('/var/www/%s' %(str_homerdir),)
+            info=open('/var/www/%s/index.php' %(str_homerdir),'wt')
+            info.write(phpinfo)
+
         domname= random.sample(genst,k=8)
         str_domname=''.join(domname)+"."+''.join(random.sample(genst, k=2))
         print(apacheconf(i,str_domname,str_homerdir))
