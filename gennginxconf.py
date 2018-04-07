@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import os,re,subprocess
+import os,re,subprocess,shutil
 test='''<VirtualHost  192.168.0.116:80>
 	ServerName cdugxlpj.mk
 	ServerAlias www.cdugxlpj.mk
@@ -70,9 +70,10 @@ class virt_host():
         self.serverroot=serverroot
         self.serverip=serverip
         self.serverindex=serverindex
-    def addcert(self,cert,key):
+    def addcert(self,cert,key,chain):
         self.cert=cert
         self.key=key
+        self.chain=chain
 #Заполнение класса virt_host и генерация конфига
 def gennginx():
     virt_re = re.compile(r'''(?P<virthost><VirtualHost .*>[\s\S]*?</VirtualHost>)''', re.VERBOSE)
@@ -85,6 +86,7 @@ def gennginx():
     serverindex = re.compile(r'''DirectoryIndex\s+(.*)''', re.IGNORECASE)
     servercert = re.compile(r'''SSLCertificateFile\s+(.*)''', re.IGNORECASE)
     serverkey = re.compile(r'''SSLCertificateKeyFile\s+(.*)''', re.IGNORECASE)
+    serverchain=re.compile(r'''SSLCertificateChainFile\s+(.*)''',  re.IGNORECASE)
     list = []
 
     for i in hosts:
@@ -93,7 +95,7 @@ def gennginx():
         virt_host.add(list[-1], serveralias_re.findall(i)[0], serverroot.findall(i)[0], serverip.findall(i)[0],
                       serverindex.findall(i)[0])
         if int(list[-1].port) == 443:
-            virt_host.addcert(list[-1], servercert.findall(i)[0], serverkey.findall(i)[0])
+            virt_host.addcert(list[-1], servercert.findall(i)[0], serverkey.findall(i)[0],serverchain.findall(i)[0])
 
     for i in list:
 
@@ -133,13 +135,14 @@ def gennginx():
  		access_log off;
  	}
  }''' % (i.servername[0], i.serveralias, i.serverindex, i.serverroot, i.serverip))
+
         if int(i.port) == 443:
-            print(i.servername[0], i.serveralias, i.serverindex, i.serverroot, i.serverip)
+            subprocess.call("cat %s %s >%s.bundle" %(i.key,i.cert,i.cert),shell=True)
             file = open(i.servername[0] + "ssl.conf", "wt")
             file.write('''server {
  	server_name %s %s;
  	ssl on;
- 	ssl_certificate "%s;
+ 	ssl_certificate "%s.bundle";
  	ssl_certificate_key "%s";
  	ssl_ciphers EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH;
  	ssl_prefer_server_ciphers on;
@@ -177,8 +180,20 @@ def gennginx():
  	}
  }''' % (i.servername[0], i.serveralias, i.cert, i.key, i.serverindex, i.serverroot, i.serverip))
 #Получаем список файлов в котором хранятся виртуальные хосты, и генерим общий конфиг который будем в будующем парсить
+def changeapacheconf():
+#Бекапим конфиги
+    serverip = re.compile(r'''<VirtualHost\s+(.*:\d+)''', re.IGNORECASE)
+    if not os.isdir("/root/backup"):
+        os.mkdir("/root/backup")
+    for i in files:
+     shutil.copy(i,"/root/backup")
+    for i in files:
+        serverip.sub(test)
+
+
+
 def readconfig():
-    global config
+    global config,files
     apachectl=subprocess.getoutput("apachectl -S")
     path = re.compile(r'''\((.*):\d+\)''', re.IGNORECASE)
     files = list(set(path.findall(apachectl))) #Получаем только уникальные значения путей
@@ -187,8 +202,9 @@ def readconfig():
         file = open(i, 'rt')
         config += file.readlines()
 if __name__ == '__main__':
-    readconfig()
-    gennginx()
+#    readconfig()
+#   gennginx()
+    pass
 
 
 
