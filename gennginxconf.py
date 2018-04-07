@@ -28,6 +28,33 @@ test='''<VirtualHost  192.168.0.116:80>
         allowoverride all
 </Directory>'''
 
-virt_re=re.compile(r'''\n?\t?(.*)''' , re.VERBOSE )
-print(virt_re.findall(test))
+
+class virt_host():
+    def __init__(self, servername):
+        self.servername=servername
+    def add(self,serveralias,serverroot,serverip,serverindex):
+        self.serveralias=serveralias
+        self.serverroot=serverroot
+        self.serverip=serverip
+        self.serverindex=serverindex
+
+
+if __name__ == '__main__':
+ virt_re=re.compile(r'''(?P<virthost><VirtualHost .*>[\s\S]*?</VirtualHost>)''' , re.VERBOSE )
+ hosts=virt_re.findall(test)
+ servername_re=re.compile(r'''ServerName\s+(.*)''',re.IGNORECASE)
+ serveralias_re=re.compile(r'''ServerAlias\s+(.*)''',re.IGNORECASE)
+ serverroot=re.compile(r'''DocumentRoot\s+(.*)''',re.IGNORECASE)
+ serverip=re.compile(r'''<VirtualHost\s+(.*):\d+''',re.IGNORECASE)
+ serverindex=re.compile(r'''DirectoryIndex\s+(.*)''',re.IGNORECASE)
+ list=[]
+ for i in hosts:
+     virt_host_name=servername_re.findall(i)
+     list.append(virt_host(virt_host_name))
+     virt_host.add(list[-1],serveralias_re.findall(i),serverroot.findall(i),serverip.findall(i),serverindex.findall(i))
+
+print (list[0].servername,list[0].serverroot)
+
+
+
 
