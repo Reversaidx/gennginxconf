@@ -138,7 +138,7 @@ def gennginx():
  }''' % (i.servername[0], i.serveralias, i.serverindex, i.serverroot, i.serverip))
 
         if int(i.port) == 443:
-            subprocess.call("cat %s %s >%s.bundle" %(i.key,i.cert,i.cert),shell=True)
+            subprocess.call("cat %s %s >%s.bundle" %(i.cert,i.chain,i.cert),shell=True)
             file = open(i.servername[0] + "ssl.conf", "wt")
             file.write('''server {
  	server_name %s %s;
