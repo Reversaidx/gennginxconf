@@ -27,6 +27,7 @@ def gennginx():
     servercert = re.compile(r'''SSLCertificateFile\s+(.*)''', re.IGNORECASE)
     serverkey = re.compile(r'''SSLCertificateKeyFile\s+(.*)''', re.IGNORECASE)
     serverchain=re.compile(r'''SSLCertificateChainFile\s+(.*)''',  re.IGNORECASE)
+    global list
     list = []
     for i in hosts:
         virt_host_name = servername_re.findall(i)
