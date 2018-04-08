@@ -78,7 +78,7 @@ class virt_host():
 def gennginx():
     virt_re = re.compile(r'''(?P<virthost><VirtualHost .*>[\s\S]*?</VirtualHost>)''', re.VERBOSE)
     hosts = virt_re.findall(config)
-    servername_re = re.compile(r'''ServerName\s+(.*)''', re.IGNORECASE)
+    servername_re = re.compile(r'''ServerName\s+(\S*)\s?''', re.IGNORECASE)
     serveralias_re = re.compile(r'''ServerAlias\s+(.*)''', re.IGNORECASE)
     serverroot = re.compile(r'''DocumentRoot\s+(.*)''', re.IGNORECASE)
     serverip = re.compile(r'''<VirtualHost\s+(.*):\d+''', re.IGNORECASE)
@@ -88,16 +88,28 @@ def gennginx():
     serverkey = re.compile(r'''SSLCertificateKeyFile\s+(.*)''', re.IGNORECASE)
     serverchain=re.compile(r'''SSLCertificateChainFile\s+(.*)''',  re.IGNORECASE)
     list = []
+#    print (hosts)
+#    for i in hosts:
+#        virt_host_name = servername_re.findall(i)[0]
+#        print ( virt_host_name )
+#        list.append(virt_host(virt_host_name, serverport.findall(i)[0]))
 
+#    if False:
     for i in hosts:
         virt_host_name = servername_re.findall(i)
         list.append(virt_host(virt_host_name, serverport.findall(i)[0]))
-        virt_host.add(list[-1], serveralias_re.findall(i)[0], serverroot.findall(i)[0], serverip.findall(i)[0],
-                      serverindex.findall(i)[0])
-        if int(list[-1].port) == 443:
-            virt_host.addcert(list[-1], servercert.findall(i)[0], serverkey.findall(i)[0],serverchain.findall(i)[0])
+#        print (list[-1].servername)
 
+#        if False:
+        print (list[-1])
+        try:
+          virt_host.add(list[-1], serveralias_re.findall(i)[0], serverroot.findall(i)[0], serverip.findall(i)[0], serverindex.findall(i)[0])
+          if int(list[-1].port) == 443:
+            virt_host.addcert(list[-1], servercert.findall(i)[0], serverkey.findall(i)[0],serverchain.findall(i)[0])
+        except:
+          pass
     for i in list:
+       try:
 
         if int(i.port) == 80:
             file = open(i.servername[0] + ".conf", 'wt')
@@ -179,6 +191,8 @@ def gennginx():
  		access_log off;
  	}
  }''' % (i.servername[0], i.serveralias, i.cert, i.key, i.serverindex, i.serverroot, i.serverip))
+       except:
+        pass 
 #Получаем список файлов в котором хранятся виртуальные хосты, и генерим общий конфиг который будем в будующем парсить
 def changeapacheconf():
 #Бекапим конфиги
@@ -193,18 +207,19 @@ def changeapacheconf():
 
 
 def readconfig():
-    global config,files
+    global config,files,config2
     apachectl=subprocess.getoutput("apachectl -S")
     path = re.compile(r'''\((.*):\d+\)''', re.IGNORECASE)
     files = list(set(path.findall(apachectl))) #Получаем только уникальные значения путей
-    config = ''
+    config2 = []
     for i in files:
         file = open(i, 'rt')
-        config += file.readlines()
+        config2 += file.readlines()
+    config=''.join(config2)	
 if __name__ == '__main__':
-#    readconfig()
-#   gennginx()
-    pass
+   readconfig()
+#   print (config)
+   gennginx()
 
 
 
