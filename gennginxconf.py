@@ -148,6 +148,15 @@ def readconfig():
 if __name__ == '__main__':
    readconfig()
    gennginx()
-   changeapacheconf()
+   print ("was been genered this this configs")
+   for i in list:
+       print(i.servername)
+   data = input('Change apache configs?: ')
+   if data == "yes":
+       changeapacheconf()
+   else:
+       exit(0)
+   
+
 
 
