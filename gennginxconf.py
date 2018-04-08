@@ -1,65 +1,5 @@
 # -*- coding: utf-8 -*-
 import os,re,subprocess,shutil
-test='''<VirtualHost  192.168.0.116:80>
-	ServerName cdugxlpj.mk
-	ServerAlias www.cdugxlpj.mk
-	DocumentRoot /var/www/phkdnbam
-	ServerAdmin webmaster@test.com
-	DirectoryIndex index.html index.php
-	AddDefaultCharset off
-	CustomLog /var/log/apache2/access.log combined
-	ErrorLog /var/log/apache2/error.log
-</VirtualHost>
-<Directory /var/www/test.com >
-	Options +Includes +ExecCGI
-        allowoverride all
-</Directory>
-<VirtualHost  192.168.0.116:80>
-	ServerName ceqjbtgz.xh
-	ServerAlias www.ceqjbtgz.xh
-	DocumentRoot /var/www/kayiolgm
-	ServerAdmin webmaster@test.com
-	DirectoryIndex index.html index.php
-	AddDefaultCharset off
-	CustomLog /var/log/apache2/access.log combined
-	ErrorLog /var/log/apache2/error.log
-</VirtualHost>
-<Directory /var/www/test.com >
-	Options +Includes +ExecCGI
-        allowoverride all
-</Directory>
-<VirtualHost  192.168.0.116:443>
-	ServerName ceqjbtgz.xh
-	ServerAlias www.ceqjbtgz.xh
-	SSLEngine on
-    SSLCertificateFile /path/to/your_domain_name.crt
-    SSLCertificateKeyFile /path/to/your_private.key
-    SSLCertificateChainFile /path/to/DigiCertCA.crt
-	DocumentRoot /var/www/kayiolgm.ru
-	ServerAdmin webmaster@test.com
-	DirectoryIndex index.html index.php
-	AddDefaultCharset off
-	CustomLog /var/log/apache2/access.log combined
-	ErrorLog /var/log/apache2/error.log
-</VirtualHost>
-<Directory /var/www/test.com >
-	Options +Includes +ExecCGI
-        allowoverride all
-</Directory>'''
-test2='''
-127.0.0.1:8080         is a NameVirtualHost
-         default server domttest.ru (/etc/httpd/conf/vhosts/domttest/domttest.ru:2)
-         port 8080 namevhost domttest.ru (/etc/httpd/conf/vhosts/domttest/domttest.ru:2)
-                 alias www.domttest.ru
-         port 8080 namevhost bitest.domttest.ru (/etc/httpd/conf/vhosts/domttest/bitest.domttest.ru:2)
-                 alias www.bitest.domttest.ru
-         port 8080 namevhost bitest2.domttest.ru (/etc/httpd/conf/vhosts/domttest/bitest2.domttest.ru:2)
-                 alias www.bitest2.domttest.ru
-         port 8080 namevhost esbit.domttest.ru (/etc/httpd/conf/vhosts/domttest/esbit.domttest.ru:2)
-                 alias www.esbit.domttest.ru
-         port 8080 namevhost mail.domttest.ru (/etc/httpd/conf/vhosts/domttest/mail.domttest.ru:2)
-                 alias www.mail.domttest.ru
-'''
 #Класс в котором хранятся параметры virtual host
 class virt_host():
     def __init__(self, servername , port):
@@ -187,20 +127,14 @@ def changeapacheconf():
 #Бекапим конфиги
     serverip = re.compile(r'''<VirtualHost\s+(\d+\.\d+\.\d+\.\d+):.*''', re.IGNORECASE)
     ip=serverip.findall(config)
-
     if not os.path.isdir("/root/backup"):
         os.mkdir("/root/backup")
     for i in files:
      shutil.copy(i,"/root/backup")
-#    for i in files:
-#        serverip.sub(test)
     for ip in ip:
      for i in files:
       subprocess.call("sed -i 's/%s:80/127.0.0.1:8080/g' %s" %(ip,i),shell=True)
       subprocess.call("sed -i 's/%s:443/127.0.0.1:8080/g' %s" %(ip,i),shell=True)
-
-
-
 def readconfig():
     global config,files,config2
     apachectl=subprocess.getoutput("apachectl -S")
