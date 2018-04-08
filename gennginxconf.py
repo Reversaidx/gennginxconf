@@ -88,20 +88,9 @@ def gennginx():
     serverkey = re.compile(r'''SSLCertificateKeyFile\s+(.*)''', re.IGNORECASE)
     serverchain=re.compile(r'''SSLCertificateChainFile\s+(.*)''',  re.IGNORECASE)
     list = []
-#    print (hosts)
-#    for i in hosts:
-#        virt_host_name = servername_re.findall(i)[0]
-#        print ( virt_host_name )
-#        list.append(virt_host(virt_host_name, serverport.findall(i)[0]))
-
-#    if False:
     for i in hosts:
         virt_host_name = servername_re.findall(i)
         list.append(virt_host(virt_host_name, serverport.findall(i)[0]))
-#        print (list[-1].servername)
-
-#        if False:
-        print (list[-1])
         try:
           virt_host.add(list[-1], serveralias_re.findall(i)[0], serverroot.findall(i)[0], serverip.findall(i)[0], serverindex.findall(i)[0])
           if int(list[-1].port) == 443:
@@ -218,7 +207,6 @@ def readconfig():
     config=''.join(config2)	
 if __name__ == '__main__':
    readconfig()
-#   print (config)
    gennginx()
 
 
