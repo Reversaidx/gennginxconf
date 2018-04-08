@@ -185,13 +185,19 @@ def gennginx():
 #Получаем список файлов в котором хранятся виртуальные хосты, и генерим общий конфиг который будем в будующем парсить
 def changeapacheconf():
 #Бекапим конфиги
-    serverip = re.compile(r'''<VirtualHost\s+(.*:\d+)''', re.IGNORECASE)
-    if not os.isdir("/root/backup"):
+    serverip = re.compile(r'''<VirtualHost\s+(\d+\.\d+\.\d+\.\d+):.*''', re.IGNORECASE)
+    ip=serverip.findall(config)
+
+    if not os.path.isdir("/root/backup"):
         os.mkdir("/root/backup")
     for i in files:
      shutil.copy(i,"/root/backup")
-    for i in files:
-        serverip.sub(test)
+#    for i in files:
+#        serverip.sub(test)
+    for ip in ip:
+     for i in files:
+      subprocess.call("sed -i 's/%s:80/127.0.0.1:8080/g' %s" %(ip,i),shell=True)
+      subprocess.call("sed -i 's/%s:443/127.0.0.1:8080/g' %s" %(ip,i),shell=True)
 
 
 
@@ -208,6 +214,6 @@ def readconfig():
 if __name__ == '__main__':
    readconfig()
    gennginx()
-
+   changeapacheconf()
 
 
