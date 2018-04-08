@@ -134,8 +134,8 @@ def changeapacheconf():
      shutil.copy(i,"/root/backup")
     for ip in ip:
      for i in files:
-      subprocess.call("sed -i 's/%s:80/127.0.0.1:8080/g' %s" %(ip,i),shell=True)
-      subprocess.call("sed -i 's/%s:443/127.0.0.1:8080/g' %s" %(ip,i),shell=True)
+      subprocess.call("sed -i 's/%s:80>/127.0.0.1:8080>/g' %s" %(ip,i),shell=True)
+      subprocess.call("sed -i 's/%s:443>/127.0.0.1:8080>/g' %s" %(ip,i),shell=True)
 def readconfig():
     global config,files,config2
     apachectl=subprocess.getoutput("apachectl -S")
